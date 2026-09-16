@@ -1438,8 +1438,12 @@
   }
   function checkout(){
     if (cartCount() === 0) return;
-    if (selectedPayMethod() === "mercadopago") startMercadoPago();
-    else openWhatsAppOrder();
+    if (selectedPayMethod() === "mercadopago") { startMercadoPago(); return; }
+    // Transferencia: manda el pedido por WhatsApp y muestra la confirmación
+    openWhatsAppOrder();
+    cart = {}; saveCart(); renderCart();
+    closeCart();
+    showPayResult("enviado");
   }
   function updateCheckoutLabel(){
     cartCheckoutBtn.textContent = selectedPayMethod() === "mercadopago"
@@ -1474,7 +1478,12 @@
     if (estado === "exito"){
       icon.className = "result-icon ok"; icon.innerHTML = ICON_CHECK;
       title.textContent = "¡Pago confirmado!";
-      msg.textContent = "Recibimos tu pago. Te vamos a contactar para coordinar la producción y la entrega. ¡Gracias por tu compra!";
+      msg.textContent = "Recibimos tu pago. Nos vamos a poner en contacto con vos para coordinar la producción y la entrega. ¡Gracias por tu compra!";
+      animar = true;
+    } else if (estado === "enviado"){
+      icon.className = "result-icon ok"; icon.innerHTML = ICON_CHECK;
+      title.textContent = "¡Pedido enviado!";
+      msg.textContent = "Nos vamos a poner en contacto con vos por WhatsApp para coordinar el pago y la entrega. ¡Gracias!";
       animar = true;
     } else if (estado === "pendiente"){
       icon.className = "result-icon pending"; icon.innerHTML = ICON_CLOCK;
