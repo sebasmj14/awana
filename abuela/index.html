@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#5b8def" />
+  <meta name="description" content="Recordatorios de medicamentos, turnos médicos y estudios para cuidar a la abuela." />
+  <title>Cuidado Abue</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Abue" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Encabezado -->
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="brand">
+          <span class="brand__icon" aria-hidden="true">💗</span>
+          <div>
+            <h1 class="brand__title" id="viewTitle">Hoy</h1>
+            <p class="brand__sub" id="viewSubtitle"></p>
+          </div>
+        </div>
+        <button class="icon-btn" id="btnNotif" title="Activar notificaciones" aria-label="Activar notificaciones">🔔</button>
+      </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="content" id="content"></main>
+
+    <!-- Botón flotante -->
+    <button class="fab" id="fab" aria-label="Agregar">＋</button>
+
+    <!-- Navegación inferior -->
+    <nav class="tabbar" role="tablist" aria-label="Secciones">
+      <button class="tab is-active" data-view="hoy" role="tab"><span class="tab__ico">🗓️</span><span>Hoy</span></button>
+      <button class="tab" data-view="medicamentos" role="tab"><span class="tab__ico">💊</span><span>Medicinas</span></button>
+      <button class="tab" data-view="turnos" role="tab"><span class="tab__ico">🩺</span><span>Turnos</span></button>
+      <button class="tab" data-view="estudios" role="tab"><span class="tab__ico">📸</span><span>Estudios</span></button>
+      <button class="tab" data-view="mas" role="tab"><span class="tab__ico">👵</span><span>Ficha</span></button>
+    </nav>
+  </div>
+
+  <!-- Contenedor de modales -->
+  <div id="modalRoot"></div>
+  <!-- Contenedor de avisos (toasts) -->
+  <div id="toastRoot" class="toast-root" aria-live="polite"></div>
+
+  <script src="js/db.js"></script>
+  <script src="js/reminders.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

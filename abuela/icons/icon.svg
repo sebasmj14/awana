@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b8def"/>
+      <stop offset="1" stop-color="#7c5cff"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <g transform="translate(256 256)">
+    <!-- corazon -->
+    <path transform="translate(0 -12) scale(1.02)" d="M0 96 C-140 8 -120 -120 -40 -120 C-8 -120 0 -96 0 -80 C0 -96 8 -120 40 -120 C120 -120 140 8 0 96 Z" fill="#ffffff" opacity="0.96"/>
+    <!-- pastilla -->
+    <g transform="rotate(-30)">
+      <rect x="-58" y="-26" width="116" height="52" rx="26" fill="#ffffff"/>
+      <rect x="-58" y="-26" width="58" height="52" rx="26" fill="#ffd36e"/>
+      <rect x="-58" y="-26" width="116" height="52" rx="26" fill="none" stroke="#5b8def" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

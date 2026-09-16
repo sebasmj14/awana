@@ -1,0 +1,18 @@
+{
+  "name": "Cuidado Abue",
+  "short_name": "Abue",
+  "description": "Recordatorios de medicamentos, turnos médicos y estudios para cuidar a la abuela.",
+  "lang": "es",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f7fb",
+  "theme_color": "#5b8def",
+  "categories": ["health", "medical", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
