@@ -55,7 +55,8 @@
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
-  img{ max-width:100%; display:block; }
+  img{ max-width:100%; display:block; -webkit-user-drag:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+  .product-photo, .pm-photo, .thumb-photo{ pointer-events:none; touch-action:none; }
   a{ color:inherit; text-decoration:none; }
   ul{ list-style:none; margin:0; padding:0; }
   h1,h2,h3,h4{ font-family: var(--font-titulo); font-weight:800; letter-spacing:.01em; margin:0; text-transform:uppercase; line-height:1.02; }
@@ -1094,10 +1095,8 @@
     
 
     
-    { id:"tra-03", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo Meidco Femenino", desc:"Impermeable liviana con cintas reflectivas.", price:22300, icon:"campera", image:"img/productos/ambomujerM.png", badge:"Salud"},
-    { id:"tra-04", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo Medico Masculino", desc:"Logo bordado, tejido resistente a manchas.", price:12700, icon:"camisa", image:"img/productos/ambomedicoH.png", badge:"Salud" },
-    { id:"tra-05", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo Medico Femenino Blanco", desc:"Ambo medico femenino en color blanco, tela antitranspirante.", price:22300, icon:"campera", image:"img/productos/ambommujerblancoM.png", badge:"Salud" },
-    { id:"tra-06", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo Medico Masculino Blanco", desc:"Ambo medico masculino en color blanco, tela antitranspirante.", price:12700, icon:"camisa", image:"img/productos/amboblancohombre.png", badge:"Salud" },
+    { id:"tra-03", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo Médico Femenino", desc:"Ambo médico femenino, tela antitranspirante y cómoda.", price:22300, icon:"campera", image:"img/productos/ambomujerM.png", variantLabel:"Color", variants:[{n:"Azul",img:"img/productos/ambomujerM.png"},{n:"Blanco",img:"img/productos/ambommujerblancoM.png"}], badge:"Salud"},
+    { id:"tra-04", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo Médico Masculino", desc:"Ambo médico masculino, tela antitranspirante y resistente.", price:12700, icon:"camisa", image:"img/productos/ambomedicoH.png", variantLabel:"Color", variants:[{n:"Azul",img:"img/productos/ambomedicoH.png"},{n:"Blanco",img:"img/productos/amboblancohombre.png"}], badge:"Salud" },
     { id:"tra-07", cat:"trabajo", catLabel:"Trabajo", color:"var(--carbon)", name:"Ambo de Cafeteria", desc:"Ambo para cafeteria y gastronomia, resistente y comodo.", price:16900, icon:"delantal", image:"img/productos/delantalcafe.jpg", badge:"Cafeteria" },
 
     { id:"egr-01", cat:"egresados", catLabel:"Egresados", color:"var(--bordo)", name:"Buzo de egresados", desc:"Diseño de promoción, nombres personalizados.", price:17800, icon:"buzo", badge:"Diseño incluido" },
@@ -1605,6 +1604,7 @@
     if (hasVariants){
       modalState.variant = p.variants[0].n;
       firstImg = p.variants[0].img;
+      pmVariantLabel.textContent = p.variantLabel || "Modelo";
       pmVariantLabel.style.display = "";
       pmVariants.style.display = "";
       pmVariants.innerHTML = p.variants.map(function(v, i){
@@ -1833,6 +1833,14 @@
     searchInput.addEventListener("input", function(){ runSearch(this.value); });
     searchClear.addEventListener("click", function(){ searchInput.value = ""; runSearch(""); searchInput.focus(); });
   }
+
+  // Bloquear menú de guardar/zoom en las imágenes (clic derecho o mantener presionado)
+  document.addEventListener("contextmenu", function(e){
+    if (e.target && e.target.tagName === "IMG") e.preventDefault();
+  });
+  document.addEventListener("dragstart", function(e){
+    if (e.target && e.target.tagName === "IMG") e.preventDefault();
+  });
 
   /* ---------------- Active category pill on scroll ---------------- */
   var pillMap = {};
