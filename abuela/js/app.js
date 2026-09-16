@@ -425,15 +425,13 @@
         h('div', { class: 'row-2' }, field(stock), field(avisoStock)),
         h('p', { style: 'margin:-6px 2px 14px; font-size:12.5px; color:var(--text-mute)' }, '💊 Si cargás cuántas tenés, la app las va descontando y te avisa cuando quedan pocas para que compres.'),
         field(notas),
-        h('div', { style: 'display:flex;gap:10px;margin-top:8px' },
-          !esNuevo ? h('button', { class: 'btn secondary', style: 'flex:0 0 auto', onclick: async () => {
-            const activo = med.activo === false;
-            med.activo = activo; await Store.saveMed(med);
-            toast(activo ? 'Reactivado' : 'Pausado'); closeModal(); renderMedicamentos(); Reminders.reschedule();
-          } }, med.activo === false ? '▶ Reactivar' : '⏸ Pausar') : null,
-          h('button', { class: 'btn', onclick: guardar }, 'Guardar'),
-        ),
-        !esNuevo ? h('button', { class: 'btn ghost danger', style: 'margin-top:12px;color:var(--rojo)', onclick: async () => {
+        h('button', { class: 'btn', style: 'margin-top:8px', onclick: guardar }, '💾 Guardar'),
+        !esNuevo ? h('button', { class: 'btn secondary', style: 'margin-top:10px', onclick: async () => {
+          const activo = med.activo === false;
+          med.activo = activo; await Store.saveMed(med);
+          toast(activo ? 'Reactivado' : 'Pausado'); closeModal(); renderMedicamentos(); Reminders.reschedule();
+        } }, med.activo === false ? '▶ Reactivar' : '⏸ Pausar') : null,
+        !esNuevo ? h('button', { class: 'btn ghost danger', style: 'margin-top:8px;color:var(--rojo)', onclick: async () => {
           if (await confirmDialog('¿Eliminar medicamento?', `Se eliminará "${med.nombre}" y sus recordatorios.`)) {
             await Store.deleteMed(med.id); await Store.deletePhoto(med.foto);
             toast('Eliminado'); closeModal(); renderMedicamentos(); Reminders.reschedule();
@@ -533,14 +531,12 @@
         labeled('Ícono', emojiRow),
         labeled('Avisarme antes', avisoRow),
         field(notas),
-        h('div', { style: 'display:flex;gap:10px;margin-top:8px' },
-          !esNuevo ? h('button', { class: 'btn secondary', onclick: async () => {
-            t.hecho = !t.hecho; await Store.saveTurno(t); toast(t.hecho ? 'Marcado como hecho' : 'Reabierto');
-            closeModal(); renderTurnos(); Reminders.reschedule();
-          } }, t.hecho ? '↩ Reabrir' : '✔ Marcar hecho') : null,
-          h('button', { class: 'btn', onclick: guardar }, 'Guardar'),
-        ),
-        !esNuevo ? h('button', { class: 'btn ghost', style: 'margin-top:12px;color:var(--rojo)', onclick: async () => {
+        h('button', { class: 'btn', style: 'margin-top:8px', onclick: guardar }, '💾 Guardar'),
+        !esNuevo ? h('button', { class: 'btn secondary', style: 'margin-top:10px', onclick: async () => {
+          t.hecho = !t.hecho; await Store.saveTurno(t); toast(t.hecho ? 'Marcado como hecho' : 'Reabierto');
+          closeModal(); renderTurnos(); Reminders.reschedule();
+        } }, t.hecho ? '↩ Reabrir' : '✔ Marcar hecho') : null,
+        !esNuevo ? h('button', { class: 'btn ghost', style: 'margin-top:8px;color:var(--rojo)', onclick: async () => {
           if (await confirmDialog('¿Eliminar turno?', `Se eliminará "${t.titulo}".`)) {
             await Store.deleteTurno(t.id); toast('Eliminado'); closeModal(); renderTurnos(); Reminders.reschedule();
           }

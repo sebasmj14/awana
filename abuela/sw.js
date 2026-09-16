@@ -3,7 +3,7 @@
    - Maneja el clic en las notificaciones.
    - (En la etapa de Web Push se agregará el evento 'push'.)
 */
-const CACHE = 'abue-v6';
+const CACHE = 'abue-v7';
 const ASSETS = [
   './',
   './index.html',
