@@ -275,6 +275,11 @@
   async function toggleDose(occ, wasDone) {
     if (wasDone) {
       await Store.deleteLog(occ.logId);
+      // Devolver la pastilla al conteo (se había descontado al marcar)
+      if (typeof occ.med.stock === 'number') {
+        occ.med.stock += 1;
+        await Store.saveMed(occ.med);
+      }
       toast('Toma desmarcada');
     } else {
       await Store.setLog({ id: occ.logId, medId: occ.medId, estado: 'tomado',
