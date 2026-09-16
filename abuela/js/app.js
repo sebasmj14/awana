@@ -189,6 +189,17 @@
       ));
     }
 
+    // Aviso de medicamentos por acabarse
+    const bajos = meds.filter((m) => m.activo !== false && typeof m.stock === 'number' && m.stock <= (m.stockAviso ?? 5));
+    if (bajos.length) {
+      const txt = bajos.map((m) => `${m.nombre} (${m.stock})`).join(', ');
+      content.appendChild(h('div', { class: 'banner warn' },
+        h('span', { class: 'banner__ico' }, '📦'),
+        h('div', {}, h('strong', {}, bajos.length === 1 ? 'Se está por acabar' : 'Se están por acabar'), h('br'),
+          'Comprá más de: ' + txt),
+      ));
+    }
+
     // Próximo turno (si es hoy o próximos 3 días)
     const prox = turnos.filter((t) => !t.hecho && new Date(t.cuando) >= new Date(Date.now() - 3600000))
       .sort((a, b) => new Date(a.cuando) - new Date(b.cuando))[0];
@@ -271,10 +282,20 @@
       toast('¡Tomado! 👍', 'ok');
       // Descontar stock si corresponde
       if (typeof occ.med.stock === 'number' && occ.med.stock > 0) {
+        const antes = occ.med.stock;
         occ.med.stock -= 1;
         await Store.saveMed(occ.med);
-        if (occ.med.stock <= (occ.med.stockAviso || 5)) {
+        const aviso = occ.med.stockAviso ?? 5;
+        // Avisar solo al momento de cruzar el umbral (o si se acabó)
+        if (occ.med.stock <= aviso && antes > aviso) {
           toast(`Quedan ${occ.med.stock} de ${occ.med.nombre}`, 'err');
+          Reminders.notify('📦 Se está por acabar', {
+            body: `Te quedan ${occ.med.stock} de ${occ.med.nombre}. Conseguí más 💊`,
+            tag: 'stock-' + occ.med.id, requireInteraction: true,
+          });
+        } else if (occ.med.stock === 0) {
+          toast(`¡Se acabó ${occ.med.nombre}!`, 'err');
+          Reminders.notify('📦 Se acabó', { body: `Se terminó ${occ.med.nombre}. Comprá más 💊`, tag: 'stock-' + occ.med.id, requireInteraction: true });
         }
       }
     }
@@ -385,7 +406,8 @@
       // Vigencia y stock
       const desde = input('Desde', med.desde || Schedule.ymd(new Date()), '', 'date');
       const hasta = input('Hasta (opcional)', med.hasta || '', 'Dejar vacío = sin fin', 'date');
-      const stock = input('Cantidad disponible (opcional)', med.stock ?? '', 'Ej: 30', 'number');
+      const stock = input('Cantidad que tenés', med.stock ?? '', 'Ej: 30', 'number');
+      const avisoStock = input('Avisarme cuando queden', med.stockAviso ?? 5, 'Ej: 7', 'number');
       const notas = textarea('Notas (opcional)', med.notas, 'Ej: tomar con comida');
 
       body.append(
@@ -395,7 +417,8 @@
         labeled('¿Qué días?', h('div', {}, seg, diasWrap)),
         labeled('¿A qué horas?', horariosWrap),
         h('div', { class: 'row-2' }, field(desde), field(hasta)),
-        field(stock),
+        h('div', { class: 'row-2' }, field(stock), field(avisoStock)),
+        h('p', { style: 'margin:-6px 2px 14px; font-size:12.5px; color:var(--text-mute)' }, '💊 Si cargás cuántas tenés, la app las va descontando y te avisa cuando quedan pocas para que compres.'),
         field(notas),
         h('div', { style: 'display:flex;gap:10px;margin-top:8px' },
           !esNuevo ? h('button', { class: 'btn secondary', style: 'flex:0 0 auto', onclick: async () => {
@@ -426,6 +449,7 @@
           desde: desde.querySelector('input').value || null,
           hasta: hasta.querySelector('input').value || null,
           stock: stock.querySelector('input').value === '' ? null : Number(stock.querySelector('input').value),
+          stockAviso: avisoStock.querySelector('input').value === '' ? 5 : Number(avisoStock.querySelector('input').value),
           notas: notas.querySelector('textarea').value.trim(),
           activo: med.activo !== false,
         });
