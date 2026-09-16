@@ -787,7 +787,15 @@
 
     // Registrar service worker (offline + base para futuras notificaciones)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(() => Reminders.reschedule()).catch(() => {});
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        Reminders.reschedule();
+        reg.update && reg.update();
+      }).catch(() => {});
+      // Cuando entra una versión nueva, recargar una sola vez para tomarla
+      let _recargando = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (_recargando) return; _recargando = true; location.reload();
+      });
     }
     // Reprogramar al volver a la app
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { Reminders.reschedule(); if (App.current === 'hoy') renderHoy(); } });

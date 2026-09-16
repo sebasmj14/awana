@@ -3,7 +3,7 @@
    - Maneja el clic en las notificaciones.
    - (En la etapa de Web Push se agregará el evento 'push'.)
 */
-const CACHE = 'abue-v2';
+const CACHE = 'abue-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -29,17 +29,17 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
+  const sameOrigin = new URL(req.url).origin === self.location.origin;
+  // Estrategia RED PRIMERO para nuestros archivos: siempre trae lo último y,
+  // si no hay internet, usa lo guardado. Así las actualizaciones entran solas.
   e.respondWith(
-    caches.match(req).then((cached) => {
-      const net = fetch(req).then((res) => {
-        if (res && res.ok && new URL(req.url).origin === self.location.origin) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => cached);
-      return cached || net;
-    })
+    fetch(req).then((res) => {
+      if (res && res.ok && sameOrigin) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy));
+      }
+      return res;
+    }).catch(() => caches.match(req))
   );
 });
 
