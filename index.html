@@ -447,6 +447,19 @@
   .cart-footer .btn-primary:hover{ background: var(--rojo-suave); }
   .cart-footer .btn-primary[disabled]{ opacity:.5; pointer-events:none; }
 
+  /* ---------- Contacto en carrito ---------- */
+  .cart-contact{ margin:16px 0 4px; }
+  .cart-input{
+    width:100%; padding:11px 14px; margin-bottom:8px; border:1.5px solid var(--crudo-osc);
+    border-radius:10px; background: var(--blanco); font-family: var(--font-cuerpo); font-size:14px; color: var(--carbon);
+    transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .cart-input::placeholder{ color: var(--carbon-claro); }
+  .cart-input:focus{ outline:none; border-color: var(--rojo); box-shadow: 0 0 0 3px rgba(228,73,27,.12); }
+  .cart-input.invalid{ border-color: var(--rojo); }
+  .cart-contact-error{ display:none; font-size:12.5px; color: var(--rojo); margin:-2px 0 6px; }
+  .cart-contact-error.show{ display:block; }
+
   /* ---------- Payment methods ---------- */
   .pay-methods{ margin:16px 0 4px; }
   .pay-methods-title{ display:block; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color: var(--carbon-claro); margin-bottom:10px; }
@@ -974,6 +987,13 @@
   <div class="cart-footer">
     <div class="cart-subtotal"><span>Subtotal</span><span id="cart-subtotal">$0</span></div>
 
+    <div class="cart-contact">
+      <span class="pay-methods-title">Tus datos</span>
+      <input type="text" id="cart-name" class="cart-input" placeholder="Tu nombre y apellido" autocomplete="name">
+      <input type="tel" id="cart-phone" class="cart-input" placeholder="Tu WhatsApp (ej: 2611234567)" autocomplete="tel">
+      <div class="cart-contact-error" id="cart-contact-error">Completá tu nombre y WhatsApp</div>
+    </div>
+
     <div class="pay-methods" id="pay-methods" role="radiogroup" aria-label="Método de pago">
       <span class="pay-methods-title">Método de pago</span>
       <label class="pay-method">
@@ -1381,8 +1401,36 @@
   function cartLines(){
     return Object.keys(cart).filter(function(k){ return cart[k] > 0; });
   }
+
+  /* ---------------- Datos de contacto del cliente ---------------- */
+  var cartName = document.getElementById("cart-name");
+  var cartPhone = document.getElementById("cart-phone");
+  var cartContactError = document.getElementById("cart-contact-error");
+  try {
+    var savedContact = JSON.parse(localStorage.getItem("awana_contact") || "{}");
+    if (savedContact.name) cartName.value = savedContact.name;
+    if (savedContact.phone) cartPhone.value = savedContact.phone;
+  } catch(e){}
+  function getContact(){
+    return { name: (cartName.value || "").trim(), phone: (cartPhone.value || "").trim() };
+  }
+  function validateContact(){
+    var c = getContact();
+    var digits = c.phone.replace(/\D/g, "");
+    var nameOk = c.name.length >= 2;
+    var phoneOk = digits.length >= 8;
+    cartName.classList.toggle("invalid", !nameOk);
+    cartPhone.classList.toggle("invalid", !phoneOk);
+    cartContactError.classList.toggle("show", !(nameOk && phoneOk));
+    if (nameOk && phoneOk){ try { localStorage.setItem("awana_contact", JSON.stringify(c)); } catch(e){} }
+    return nameOk && phoneOk;
+  }
+  cartName.addEventListener("input", function(){ cartName.classList.remove("invalid"); cartContactError.classList.remove("show"); });
+  cartPhone.addEventListener("input", function(){ cartPhone.classList.remove("invalid"); cartContactError.classList.remove("show"); });
+
   function buildOrderMessage(){
-    var lines = ["¡Hola AWANA! Quiero hacer este pedido:", ""];
+    var c = getContact();
+    var lines = ["¡Hola AWANA! Soy " + c.name + " (WhatsApp: " + c.phone + ").", "Quiero hacer este pedido:", ""];
     cartLines().forEach(function(key){
       var info = parseKey(key);
       var p = productById(info.id);
@@ -1419,7 +1467,7 @@
     fetch(MP_CONFIG.backendUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: mpItems() })
+      body: JSON.stringify({ items: mpItems(), contact: getContact() })
     })
     .then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
     .then(function(r){
@@ -1438,6 +1486,7 @@
   }
   function checkout(){
     if (cartCount() === 0) return;
+    if (!validateContact()) return;
     if (selectedPayMethod() === "mercadopago") { startMercadoPago(); return; }
     // Transferencia: manda el pedido por WhatsApp y muestra la confirmación
     openWhatsAppOrder();
