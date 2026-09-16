@@ -419,4 +419,26 @@ img { max-width: 100%; display: block; }
 .big-text { font-size: 1.12em; }
 :root[data-bigtext="1"] body { font-size: 19px; }
 
+/* ---------- Pantalla de inicio de sesión ---------- */
+.auth-screen {
+  position: fixed; inset: 0; z-index: 80;
+  background: linear-gradient(160deg, var(--azul), var(--violeta));
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px calc(16px + env(safe-area-inset-right, 0px));
+  padding-top: calc(20px + var(--safe-top));
+}
+.auth-card {
+  background: var(--bg); color: var(--text);
+  width: 100%; max-width: 420px;
+  border-radius: 22px; padding: 26px 22px;
+  box-shadow: var(--shadow-lg);
+}
+.auth-logo {
+  width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 16px;
+  display: grid; place-items: center; font-size: 34px;
+  background: linear-gradient(135deg, #eef2ff, #f3edff);
+}
+.auth-msg { font-size: 14px; color: var(--rojo); min-height: 20px; margin: 6px 2px; }
+.auth-msg.ok { color: var(--verde); }
+
 .hide { display: none !important; }

@@ -645,8 +645,24 @@
         h('span', { class: 'ico' }, '💾'), h('span', {}, 'Descargar respaldo'),
         h('span', { class: 'chev' }, '›')),
     ));
+    // Sesión (solo en modo nube)
+    if (Store.mode === 'supabase' && window.Auth && window.Auth.user) {
+      content.appendChild(h('div', { class: 'section-title' }, '☁️ Cuenta'));
+      content.appendChild(h('div', { class: 'card', style: 'display:flex;align-items:center;gap:12px' },
+        h('span', { style: 'font-size:22px' }, '👤'),
+        h('div', { style: 'flex:1;min-width:0' },
+          h('div', { style: 'font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis' }, window.Auth.user.email || 'Conectado'),
+          h('div', { style: 'font-size:13px;color:var(--text-soft)' }, 'Sincronizado en la nube')),
+      ));
+      content.appendChild(h('button', { class: 'btn secondary', onclick: async () => {
+        if (await confirmDialog('¿Cerrar sesión?', 'Vas a tener que ingresar de nuevo con tu correo y contraseña.', 'Cerrar sesión', false)) {
+          window.Auth.signOut();
+        }
+      } }, '🚪 Cerrar sesión'));
+    }
+
     content.appendChild(h('p', { style: 'text-align:center;color:var(--text-mute);font-size:13px;margin-top:18px' },
-      'Cuidado Abue · guardado en este dispositivo'));
+      Store.mode === 'supabase' ? 'Cuidado Abue · sincronizado en la nube' : 'Cuidado Abue · guardado en este dispositivo'));
   }
 
   function fichaRow(ico, label, val) {
@@ -800,6 +816,16 @@
     // Reprogramar al volver a la app
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { Reminders.reschedule(); if (App.current === 'hoy') renderHoy(); } });
 
+    // Si está configurado Supabase, pedir inicio de sesión antes de arrancar.
+    // Si no, arranca en modo local (datos en este dispositivo).
+    if (window.SUPABASE_URL && window.Auth) {
+      window.Auth.start(startApp);
+    } else {
+      startApp();
+    }
+  }
+
+  function startApp() {
     App.go('hoy');
     Reminders.reschedule();
   }

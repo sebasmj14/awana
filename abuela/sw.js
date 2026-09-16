@@ -3,13 +3,15 @@
    - Maneja el clic en las notificaciones.
    - (En la etapa de Web Push se agregará el evento 'push'.)
 */
-const CACHE = 'abue-v3';
+const CACHE = 'abue-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/styles.css',
+  './js/config.js',
   './js/db.js',
+  './js/store-supabase.js',
   './js/reminders.js',
   './js/app.js',
   './icons/icon.svg',
