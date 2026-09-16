@@ -932,6 +932,8 @@
       <div class="pm-price" id="pm-price"></div>
       <div class="pm-quote-note" id="pm-quote-note">Venta por mayor — te pasamos el precio y las opciones por WhatsApp.</div>
       <p class="pm-desc" id="pm-desc"></p>
+      <div class="pm-field-label" id="pm-variant-label">Modelo</div>
+      <div class="pm-sizes" id="pm-variants"></div>
       <div class="pm-field-label" id="pm-size-label">Talle</div>
       <div class="pm-sizes" id="pm-sizes"></div>
       <div class="pm-size-error" id="pm-size-error">Elegí un talle primero</div>
@@ -1059,8 +1061,8 @@
     { id:"col-M01", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Chomba Maristas", desc:"Chomba manga corta ,pique de algodon blanco, cuello tejido y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/Chomba-maristas-blanca.png", badge:"Maristas" },
     { id:"col-M02", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Chomba Azul Maristas", desc:"Chomba manga corta ,jersey peinado blanco y azul, cuello tejido y escudo y nombre de la insitucion bordado .", price:8600, icon:"delantal", image:"img/productos/Chomba-azulmaristas.png", badge:"Maristas" },
     { id:"col-M03", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Campera Maristas", desc:"Campera de acetato Premium azul ,capucha y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/camperamaristas.png", badge:"Maristas" },
-    { id:"col-M04", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Sueter Maristas", desc:"Sueter tejido y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/buzo-maristas.png", badge:"Maristas" },
-    { id:"col-M05", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Pantalon Maristas", desc:"Pantalon de acetato Premium y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/pantalonmaristas.png", badge:"Maristas" },
+    { id:"col-M04", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Sueter Maristas", desc:"Sueter tejido y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/sueterM.png", badge:"Maristas" },
+    { id:"col-M05", cat:"colegios", catLabel:"Colegio·Maristas", color:"var(--rojo)", name:"Pantalon Maristas", desc:"Pantalon de acetato Premium y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/pantalonmaristas.png", variants:[{n:"Sin puño",img:"img/productos/pantalonmaristas.png"},{n:"Con puño",img:"img/productos/pantalonmaristas-puno.png"}], badge:"Maristas" },
     { id:"col-B01", cat:"colegios", catLabel:"Colegio·Bufano", color:"var(--rojo)", name:"Chomba Bufano", desc:"Chomba azul noche pique de algodon ,cuello tejido y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/chombabufano.png", badge:"Bufano" },
     { id:"col-cmd1", cat:"colegios", catLabel:"Colegio·Compañia de Maria", color:"var(--rojo)", name:"Chomba CDM", desc:"Chomba manga corta ,pique de algodon blanco, cuello tejido y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/chombacompania.png", badge:"Compañia de Maria" },
     { id:"col-tae1", cat:"colegios", catLabel:"Colegio·Tomás Alva Edison", color:"var(--rojo)", name:"Chomba TAE", desc:"Chomba  manga corta ,pique de algodon gris, cuello tejido y escudo bordado .", price:8600, icon:"delantal", image:"img/productos/chombaTAE.png", badge:"Tomás Alva Edison" },
@@ -1163,10 +1165,12 @@
   function isQuote(p){
     return p.cat === "egresados" || p.cat === "empresas";
   }
-  function cartKey(id, size){ return id + "|" + size; }
+  function cartKey(id, size, variant){
+    return variant ? (id + "|" + size + "|" + variant) : (id + "|" + size);
+  }
   function parseKey(key){
-    var i = key.indexOf("|");
-    return i < 0 ? { id: key, size: "" } : { id: key.slice(0, i), size: key.slice(i + 1) };
+    var parts = key.split("|");
+    return { id: parts[0] || "", size: parts[1] || "", variant: parts[2] || "" };
   }
 
   function saveCart(){
@@ -1211,6 +1215,7 @@
       if (!p) return;
       var qty = cart[key];
       var sizeLabel = (info.size && info.size !== "Único") ? "Talle " + info.size : (info.size === "Único" ? "Único" : p.catLabel);
+      if (info.variant) sizeLabel += " · " + info.variant;
       var row = document.createElement('div');
       row.className = "cart-item";
       row.innerHTML =
@@ -1234,8 +1239,8 @@
     });
   }
 
-  function addToCart(id, size, qty, fromEl){
-    var key = cartKey(id, size);
+  function addToCart(id, size, variant, qty, fromEl){
+    var key = cartKey(id, size, variant);
     cart[key] = (cart[key] || 0) + qty;
     saveCart();
     renderCart();
@@ -1383,7 +1388,8 @@
       var p = productById(info.id);
       if (!p) return;
       var sz = (info.size && info.size !== "Único") ? " (Talle " + info.size + ")" : (info.size === "Único" ? " (Único)" : "");
-      lines.push("• " + p.name + sz + " x" + cart[key] + " — " + fmt.format(p.price * cart[key]));
+      var vr = info.variant ? " [" + info.variant + "]" : "";
+      lines.push("• " + p.name + sz + vr + " x" + cart[key] + " — " + fmt.format(p.price * cart[key]));
     });
     lines.push("");
     lines.push("Subtotal: " + fmt.format(cartSubtotal()));
@@ -1399,7 +1405,7 @@
     // (el navegador no decide el precio, por seguridad).
     return cartLines().map(function(key){
       var info = parseKey(key);
-      return { id: info.id, size: info.size, quantity: cart[key] };
+      return { id: info.id, size: info.size, variant: info.variant, quantity: cart[key] };
     });
   }
   function startMercadoPago(){
@@ -1523,7 +1529,9 @@
   var pmAddLabel = document.getElementById("pm-add-label");
   var pmQuoteNote = document.getElementById("pm-quote-note");
   var pmQtyLabel = document.getElementById("pm-qty-label");
-  var modalState = { product: null, size: null, qty: 1 };
+  var pmVariantLabel = document.getElementById("pm-variant-label");
+  var pmVariants = document.getElementById("pm-variants");
+  var modalState = { product: null, size: null, qty: 1, variant: "" };
 
   function openProductModal(id){
     var p = productById(id);
@@ -1531,11 +1539,29 @@
     modalState.product = p;
     modalState.size = null;
     modalState.qty = 1;
+    modalState.variant = "";
+
+    // Variantes (ej: con/sin puño) - la primera es la que se muestra por defecto
+    var hasVariants = p.variants && p.variants.length > 0;
+    var firstImg = p.image;
+    if (hasVariants){
+      modalState.variant = p.variants[0].n;
+      firstImg = p.variants[0].img;
+      pmVariantLabel.style.display = "";
+      pmVariants.style.display = "";
+      pmVariants.innerHTML = p.variants.map(function(v, i){
+        return '<button type="button" class="pm-size' + (i === 0 ? ' selected' : '') + '" data-variant="' + v.n + '" data-img="' + v.img + '">' + v.n + '</button>';
+      }).join("");
+    } else {
+      pmVariantLabel.style.display = "none";
+      pmVariants.style.display = "none";
+      pmVariants.innerHTML = "";
+    }
 
     pmVisual.style.color = p.color;
-    pmVisual.classList.toggle("has-photo", !!p.image);
+    pmVisual.classList.toggle("has-photo", !!firstImg);
     pmVisual.innerHTML = (p.badge ? '<span class="pm-badge">' + p.badge + '</span>' : "") +
-      (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '">' : ICONS[p.icon]);
+      (firstImg ? '<img class="pm-photo" id="pm-photo" src="' + firstImg + '" alt="' + p.name + '">' : ICONS[p.icon]);
     pmCat.textContent = p.catLabel;
     pmTitle.textContent = p.name;
 
@@ -1586,6 +1612,18 @@
     pmSizeError.classList.remove("show");
   });
 
+  // Selector de variante (ej: con/sin puño): cambia la foto y guarda la eleccion
+  pmVariants.addEventListener("click", function(e){
+    var chip = e.target.closest(".pm-size");
+    if (!chip) return;
+    modalState.variant = chip.getAttribute("data-variant");
+    [].forEach.call(pmVariants.children, function(c){ c.classList.remove("selected"); });
+    chip.classList.add("selected");
+    var img = chip.getAttribute("data-img");
+    var photo = document.getElementById("pm-photo");
+    if (img && photo) photo.setAttribute("src", img);
+  });
+
   document.getElementById("pm-qty-inc").addEventListener("click", function(){
     modalState.qty += 1; pmQtyEl.textContent = modalState.qty;
   });
@@ -1597,17 +1635,18 @@
     if (!modalState.product) return;
     if (!modalState.size){ pmSizeError.classList.add("show"); return; }
     if (isQuote(modalState.product)){
-      sendQuote(modalState.product, modalState.size, modalState.qty);
+      sendQuote(modalState.product, modalState.size, modalState.qty, modalState.variant);
     } else {
-      addToCart(modalState.product.id, modalState.size, modalState.qty, pmAdd);
+      addToCart(modalState.product.id, modalState.size, modalState.variant, modalState.qty, pmAdd);
     }
     closeProductModal();
   });
 
-  function sendQuote(product, size, qty){
+  function sendQuote(product, size, qty, variant){
     var sz = (size && size !== "Único") ? " (Talle " + size + ")" : (size === "Único" ? " (Único)" : "");
+    var vr = variant ? " [" + variant + "]" : "";
     var msg = "¡Hola AWANA! Quiero cotizar (venta por mayor):\n\n" +
-      "• " + product.name + sz + "\n" +
+      "• " + product.name + sz + vr + "\n" +
       "• Cantidad aproximada: " + qty + "\n\n" +
       "¿Me pasan precio y modelos disponibles? ¡Gracias!";
     var url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
