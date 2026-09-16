@@ -365,11 +365,20 @@
             h('span', { class: 'chip__x', style: 'cursor:pointer', onclick: () => { horarios.splice(idx, 1); pintarHorarios(); } }, '✕'),
           ));
         });
-        const addBtn = h('label', { class: 'chip chip--add' }, '＋ hora',
-          h('input', { type: 'time', class: 'hide', onchange: (e) => {
-            if (e.target.value && !horarios.includes(e.target.value)) { horarios.push(e.target.value); pintarHorarios(); }
-          } }));
-        horariosWrap.appendChild(addBtn);
+        // Selector de hora VISIBLE dentro de un chip "＋ hora" (el reloj se abre al tocarlo)
+        const addInput = h('input', {
+          type: 'time',
+          'aria-label': 'Agregar horario',
+          style: 'border:none; background:transparent; color:var(--azul); font:inherit; font-weight:700; width:74px; padding:0; cursor:pointer;',
+          onchange: (e) => {
+            const v = e.target.value;
+            if (v && !horarios.includes(v)) { horarios.push(v); pintarHorarios(); }
+          },
+        });
+        const addLabel = h('label', { class: 'chip chip--add', style: 'gap:6px; cursor:pointer;',
+          onclick: () => { try { addInput.showPicker && addInput.showPicker(); } catch (_) {} } },
+          '＋ hora', addInput);
+        horariosWrap.appendChild(addLabel);
       }
       pintarHorarios();
 
